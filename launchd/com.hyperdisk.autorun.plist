@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" 
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
 "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>Label</key>
-    <string>com.hyperdisk.autorun</string>
+  <key>Label</key>
+  <string>com.hyperdisk.autorun</string>
 
-    <key>ProgramArguments</key>
-    <array>
-        <string>/Volumes/HyperDisk/autorun.sh</string>
-    </array>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Volumes/MacData/Projects/hyperdisk-lab/autorun.sh</string>
+    <string>dev</string>
+  </array>
 
-    <key>WatchPaths</key>
-    <array>
-        <string>/Volumes/HyperDisk</string>
-    </array>
+  <key>WatchPaths</key>
+  <array>
+    <string>/Volumes/MacData</string>
+  </array>
 
-    <key>RunAtLoad</key>
-    <true/>
+  <key>RunAtLoad</key>
+  <true/>
 </dict>
 </plist>
