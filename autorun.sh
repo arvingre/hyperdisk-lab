@@ -6,7 +6,6 @@ MACDATA="/Volumes/MacData"
 SYSLAB="/Volumes/SysLab"
 VMSTORAGE="/Volumes/VMStorage"
 SYNC_SCRIPT="$MACDATA/Projects/hyperdisk-lab/sync_macdata.sh"
-LOG_FILE="$MACDATA/sync.log"
 
 # ------------------------
 # 检查挂载卷
@@ -20,9 +19,32 @@ done
 echo "✅ 所有卷已挂载"
 
 # ------------------------
+# 创建别名快捷方式
+# ------------------------
+echo "🔗 检查 ~/HyperDisk 快捷目录..."
+mkdir -p ~/HyperDisk
+ln -sf "$MACDATA/Projects" ~/HyperDisk/Projects
+ln -sf "$MACDATA/Docs" ~/HyperDisk/Docs
+ln -sf "$SYSLAB/Scripts" ~/HyperDisk/Scripts
+ln -sf "$VMSTORAGE/Cache" ~/HyperDisk/Cache
+
+# ------------------------
+# 定义通知函数
+# ------------------------
+function notify() {
+  TITLE="$1"
+  MESSAGE="$2"
+  osascript -e "display notification \"$MESSAGE\" with title \"$TITLE\""
+}
+
+# ------------------------
 # 模式识别
 # ------------------------
 MODE=${1:-default} # 默认为 default 模式
+TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
+LOG_DIR="$MACDATA/logs"
+mkdir -p "$LOG_DIR"
+LOG_FILE="$LOG_DIR/sync_$TIMESTAMP.log"
 
 case "$MODE" in
   dev)
@@ -59,4 +81,5 @@ case "$MODE" in
     ;;
 esac
 
+notify "HyperDisk" "模式 [$MODE] 执行完成，已自动挂载与初始化 ✅"
 echo "✨ 初始化完成 [$MODE 模式]"
