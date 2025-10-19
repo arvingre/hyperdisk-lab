@@ -1,0 +1,77 @@
+name: WCD — One-shot PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      filepath:
+        description: "File path to create/update, e.g. docs/wcd-sync/hello.md"
+        required: true
+        type: string
+      content:
+        description: "File content (plain text). Use \\n for newlines."
+        required: true
+        type: string
+      title:
+        description: "PR & commit title"
+        required: true
+        type: string
+      body:
+        description: "PR body"
+        required: false
+        type: string
+      base:
+        description: "Base branch (empty = repo default)"
+        required: false
+        type: string
+      branch_prefix:
+        description: "Head branch prefix (default: wcd-bot)"
+        required: false
+        type: string
+
+jobs:
+  pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get GitHub App installation token
+        id: app
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.WCD_APP_ID }}
+          private-key: ${{ secrets.WCD_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "WCD Bot"
+          git config user.email "wcd-bot[bot]@users.noreply.github.com"
+
+      - name: Compute head branch name
+        id: bn
+        run: |
+          p="${{ github.event.inputs.branch_prefix }}"
+          [ -z "$p" ] && p="wcd-bot"
+          echo "name=$p/$(date +%s)" >> $GITHUB_OUTPUT
+
+      - name: Create working file
+        run: |
+          fp="${{ github.event.inputs.filepath }}"
+          mkdir -p "$(dirname "$fp")"
+          printf "%s" "${{ github.event.inputs.content }}" > "$fp"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ steps.app.outputs.token }}
+          branch: ${{ steps.bn.outputs.name }}
+          base: ${{ github.event.inputs.base }}
+          add-paths: |
+            ${{ github.event.inputs.filepath }}
+          commit-message: ${{ github.event.inputs.title }}
+          title: ${{ github.event.inputs.title }}
+          body: ${{ github.event.inputs.body }}
